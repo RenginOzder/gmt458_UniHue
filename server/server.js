@@ -2,6 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
+const authRoute = require('./routes/auth');
+const eventRoute = require('./routes/events');
+
 
 // Uygulamayı Başlat
 const app = express();
@@ -9,6 +12,10 @@ const app = express();
 // Ara Yazılımlar (Middlewares)
 app.use(express.json()); // Gelen JSON verilerini okumak için
 app.use(cors()); // Frontend ile iletişim için
+
+app.use('/api/auth', authRoute);
+app.use('/api/events', eventRoute);
+
 
 // Test Rotası (API çalışıyor mu?)
 app.get('/', (req, res) => {
