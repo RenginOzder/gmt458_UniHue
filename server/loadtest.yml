@@ -1,0 +1,15 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 60
+      arrivalRate: 20
+      name: "Isınma Turu (Hafif Yük)"
+    - duration: 120
+      arrivalRate: 100
+      rampTo: 200
+      name: "Yoğun Yük (Sanal Öğrenci Ordusu)"
+
+scenarios:
+  - flow:
+      - get:
+          url: "/api/events"
