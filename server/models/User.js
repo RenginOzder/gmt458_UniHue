@@ -1,34 +1,35 @@
 const mongoose = require('mongoose');
 
-// Kullanıcı Şeması
 const UserSchema = new mongoose.Schema({
   username: { 
     type: String, 
-    required: true 
+    required: true, 
+    unique: true 
   },
   email: { 
     type: String, 
     required: true, 
-    unique: true // Her mailden sadece bir tane olabilir
+    unique: true 
   },
   password: { 
     type: String, 
     required: true 
   },
-  // ÖDEV GEREKSİNİMİ: 3 Farklı Rol [cite: 15]
+  // Rolü burada belirliyoruz: 'basic', 'student' veya 'admin'
   role: { 
     type: String, 
-    enum: ['student', 'uni_admin', 'super_admin'], 
-    default: 'student' 
+    enum: ['basic', 'student', 'admin'], 
+    default: 'basic' 
   },
-  // Hangi üniversiteden olduğu (Hacettepe, ODTÜ vb.)
+  // Eğer öğrenciyse hangi üniversite? (hacettepe, odtu, gazi vb.)
+  // Basic user ise burası 'null' kalacak.
   university: { 
     type: String, 
-    default: 'General' 
+    default: null 
   },
-  createdAt: { 
-    type: Date, 
-    default: Date.now 
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
 

@@ -5,7 +5,8 @@ const EventSchema = new mongoose.Schema({
   description: String,
   type: { 
     type: String, 
-    enum: ['theater', 'cinema', 'concert', 'coffee', 'other'],
+    // Senin örneğindeki 'ders çalışma'yı da ekledim ('study')
+    enum: ['theater', 'cinema', 'concert', 'coffee', 'study', 'other'],
     required: true
   },
   date: { type: Date, required: true },
@@ -21,13 +22,23 @@ const EventSchema = new mongoose.Schema({
       required: true
     }
   },
-  universityScope: { type: String, default: 'All' },
+  // YENİ: Etkinliğin kapsamı. 'All' ise Ankara geneli, yoksa üniversite adı.
+  universityScope: { 
+    type: String, 
+    default: 'All' 
+  },
+  // YENİ: Etkinliği oluşturan kişinin ID'si
   creator: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
+// Coğrafi sorgular için indeks
 EventSchema.index({ location: '2dsphere' });
 
 module.exports = mongoose.model('Event', EventSchema);

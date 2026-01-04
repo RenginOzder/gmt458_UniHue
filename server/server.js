@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
-const authRoute = require('./routes/auth');
+const authRoutes = require('./routes/auth');
 const eventRoute = require('./routes/events');
 
 
@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json()); // Gelen JSON verilerini okumak için
 app.use(cors()); // Frontend ile iletişim için
 
-app.use('/api/auth', authRoute);
+app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoute);
 
 
