@@ -1,226 +1,263 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import React, { useEffect, useState, useCallback } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import axios from 'axios';
 
-// İkon Ayarları
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
-});
+// --- İKON OLUŞTURUCU (SVG - Temiz Görünüm) ---
+const createColorIcon = (color, size = 40) => {
+  const svgIcon = `
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}" fill="${color}" stroke="black" stroke-width="1" stroke-linejoin="round">
+    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+    <circle cx="12" cy="9" r="2.5" fill="white"/>
+  </svg>`;
+  return L.divIcon({
+    className: 'custom-icon',
+    html: svgIcon,
+    iconSize: [size, size],
+    iconAnchor: [size/2, size],
+    popupAnchor: [0, -size + 5]
+  });
+};
+
+// --- RENK VE İKON AYARLARI ---
+const ICONS = {
+  cinema: createColorIcon('#9c27b0'),    // 🟣 Sinema: MOR
+  opera: createColorIcon('#e91e63'),     // 🌸 Opera: PEMBE
+  cso: createColorIcon('#1a237e'),       // 🔵 CSO: KOYU MAVİ
+  theater: createColorIcon('#ff9800'),   // 🟠 Tiyatro: TURUNCU
+  concert: createColorIcon('#f44336'),   // 🎵 Bahar Şenliği: KIRMIZI
+  eat: createColorIcon('#4caf50'),       // 🌯 Yemek: YEŞİL
+  coffee: createColorIcon('#795548'),    // ☕ Kahve: KAHVERENGİ
+  study: createColorIcon('#607d8b'),     // 📚 Ders: GRİ MAVİ
+  student: createColorIcon('#d32f2f')    // ❤️ Varsayılan: KIRMIZI
+};
 
 // Üniversite İsimleri
 const uniNames = {
-  hacettepe: "Hacettepe Üniversitesi",
-  odtu: "Orta Doğu Teknik Üniversitesi",
-  ankara: "Ankara Üniversitesi",
-  gazi: "Gazi Üniversitesi",
-  atilim: "Atılım Üniversitesi",
-  bilkent: "Bilkent Üniversitesi",
-  cankaya: "Çankaya Üniversitesi",
-  yildirim: "Yıldırım Beyazıt Üni.",
-  ufuk: "Ufuk Üniversitesi",
-  tobb: "TOBB ETÜ",
-  ted: "TED Üniversitesi",
-  other: "Diğer Üniversite",
-  null: "Misafir Kullanıcı"
+  hacettepe: "Hacettepe Üniversitesi", odtu: "ODTÜ", ankara: "Ankara Üniversitesi",
+  gazi: "Gazi Üniversitesi", atilim: "Atılım", bilkent: "Bilkent", other: "Diğer", null: "Misafir"
 };
+
+// Üniversite Koordinatları (Zoom İçin)
+const UNI_COORDS = {
+  odtu: [39.8914, 32.7847],
+  hacettepe: [39.8656, 32.7344],
+  bilkent: [39.8679, 32.7488],
+  ankara: [39.9365, 32.8306],
+  gazi: [39.9378, 32.8214],
+  default: [39.9208, 32.8541] 
+};
+
+// --- OTOMATİK ZOOM BİLEŞENİ ---
+function FlyToUniversity({ university }) {
+  const map = useMap();
+  useEffect(() => {
+    if (university && UNI_COORDS[university]) {
+      map.flyTo(UNI_COORDS[university], 15, { duration: 2 });
+    } else {
+      map.flyTo(UNI_COORDS.default, 12, { duration: 2 });
+    }
+  }, [university, map]);
+  return null;
+}
 
 const UniHueMap = ({ currentUser }) => {
   const [events, setEvents] = useState([]);
   const [newEventLoc, setNewEventLoc] = useState(null);
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    type: "study",
-    date: ""
-  });
+  const [formData, setFormData] = useState({ title: "", description: "", type: "study", date: "" });
 
-  const getEvents = async () => {
+  const getEvents = useCallback(async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/events", {
-        params: {
-          university: currentUser?.university,
-          role: currentUser?.role
-        }
+        params: { university: currentUser?.university, role: currentUser?.role }
       });
       setEvents(res.data);
-    } catch (err) {
-      console.log("Veri hatası:", err);
-    }
-  };
-
-  useEffect(() => {
-    getEvents();
+    } catch (err) { console.log("Veri hatası:", err); }
   }, [currentUser]);
 
-  // Harita Tıklama Bileşeni
+  useEffect(() => { getEvents(); }, [getEvents]);
+
+  // Haritaya Tıklayınca Ekleme Modunu Aç
   function AddEventClick() {
     useMapEvents({
       click(e) {
-        if (currentUser.role === 'basic') {
-          // Misafir ise sessiz kal veya uyar
-          return;
-        }
+        if (currentUser.role === 'basic') return; 
         setNewEventLoc(e.latlng);
       },
     });
-    return newEventLoc ? <Marker position={newEventLoc} /> : null;
+    return newEventLoc ? <Marker position={newEventLoc} icon={ICONS.student} /> : null;
   }
 
-  // Form Gönderme
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newEvent = {
       ...formData,
-      location: {
-        type: "Point",
-        coordinates: [newEventLoc.lng, newEventLoc.lat]
-      },
+      location: { type: "Point", coordinates: [newEventLoc.lng, newEventLoc.lat] },
       universityScope: currentUser.university,
       creator: currentUser._id
     };
-
     try {
       await axios.post("http://localhost:5000/api/events", newEvent);
       setNewEventLoc(null);
       setFormData({ title: "", description: "", type: "study", date: "" });
       getEvents();
-      alert("Etkinlik Başarıyla Oluşturuldu! 🎉");
-    } catch (err) {
-      console.log(err);
-      alert("Hata oluştu!");
-    }
+      alert("Etkinlik Eklendi!");
+    } catch (err) { alert("Hata!"); }
   };
 
-  // İkon Belirleme
+  const getMarkerIconForEvent = (event) => {
+    if (ICONS[event.type]) return ICONS[event.type];
+    return ICONS.student;
+  };
+
+  const translateType = (type) => {
+    if (type === 'cinema') return '🎬 Sinema';
+    if (type === 'theater') return '🎭 Tiyatro';
+    if (type === 'study') return '📚 Ders Çalışma';
+    if (type === 'coffee') return '☕ Çay/Kahve Molası';
+    if (type === 'eat') return '🌯 Yemek';
+    if (type === 'concert') return '🎵 Bahar Şenliği / Konser';
+    if (type === 'opera') return '💃 Opera ve Bale';
+    if (type === 'cso') return '🎻 CSO Konser';
+    return '📅 Etkinlik';
+  };
+
+  // --- 🔥 İŞTE BURASI: ESKİ GÜZEL KULLANICI KARTI ---
+  // Öğrenciyse 🎓, Misafirse 👤 ikonu seçimi
   const userIcon = currentUser.role === 'basic' ? "👤" : "🎓";
 
-  // Buton Tıklama Aksiyonu (Rehberlik)
-  const handleAddBtnClick = () => {
-    alert("📍 Etkinlik eklemek için lütfen harita üzerinde istediğiniz konuma tıklayın.");
-  };
+  // Butona basınca haritada tıklamayı hatırlatan fonksiyon
+  const handleAddBtnClick = () => { alert("📍 Harita üzerinde eklemek istediğiniz yere tıklayın."); };
 
   return (
     <div style={{ position: 'relative', height: '100vh', width: '100%' }}>
       
-      {/* --- SAĞ ÜST PANEL --- */}
+      {/* 🟢 KULLANICI PROFİL KARTI (ESKİ HALİNE DÖNDÜ) */}
       <div style={{
         position: 'absolute', top: '20px', right: '20px', zIndex: 1000,
         backgroundColor: 'rgba(255, 255, 255, 0.95)', padding: '15px',
         borderRadius: '10px', boxShadow: '0 4px 15px rgba(0,0,0,0.3)', minWidth: '250px',
-        display: 'flex', flexDirection: 'column', gap: '10px' // Elemanlar alt alta düzgün dizilsin
+        display: 'flex', flexDirection: 'column', gap: '10px'
       }}>
-        {/* Başlık ve İsim */}
         <div>
             <h3 style={{ margin: '0 0 5px 0', color: '#1a237e' }}>
-            👋 Hoşgeldin, <span style={{ textTransform: 'capitalize' }}>{currentUser.username.replace(/_/g, ' ')}</span>
+            👋 <span style={{ textTransform: 'capitalize' }}>{currentUser.username}</span>
             </h3>
             <p style={{ margin: '0', color: '#546e7a', fontSize: '14px' }}>
             {userIcon} <b>{currentUser.university ? uniNames[currentUser.university] : "Misafir Kullanıcı"}</b>
             </p>
         </div>
-        
-        {/* İstatistik */}
+
+        {/* --- AKTİF ETKİNLİK SAYISI GERİ GELDİ --- */}
         <div style={{ fontSize: '12px', color: '#888' }}>
-          Şu an haritada <b>{events.length}</b> etkinlik görüntüleniyor.
+          Aktif Etkinlik: <b>{events.length}</b>
         </div>
 
-        {/* --- YENİ MAVİ BUTON (SADECE ÖĞRENCİLERE) --- */}
+        {/* --- SADECE ÖĞRENCİDE ÇIKAN BUTON --- */}
         {currentUser.role !== 'basic' && (
-            <button 
-                onClick={handleAddBtnClick}
-                style={{
-                    width: '100%',
-                    padding: '10px',
-                    backgroundColor: '#1976d2', // Parlak Mavi
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '5px',
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px'
-                }}
-            >
-                ➕ Etkinlik Ekle
-            </button>
+            <button onClick={handleAddBtnClick} style={{
+                width: '100%', padding: '8px', backgroundColor: '#1976d2', color: 'white',
+                border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
+            }}>➕ Etkinlik Ekle</button>
         )}
-        
-        {/* ÇIKIŞ BUTONU */}
-        <button 
-            onClick={() => window.location.reload()} 
-            style={{
-                width: '100%', padding: '10px', 
-                backgroundColor: '#c62828', // Kırmızı
-                color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer',
-                fontWeight: 'bold'
-            }}
-        >
-            Çıkış Yap 🚪
-        </button>
-      </div>
 
-      {/* --- SOL ALT: FORM PENCERESİ (Haritaya tıklanınca görünür) --- */}
+        {/* --- ÇIKIŞ BUTONU --- */}
+        <button onClick={() => window.location.reload()} style={{
+            width: '100%', padding: '8px', backgroundColor: '#c62828', color: 'white',
+            border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
+        }}>Çıkış Yap 🚪</button>
+      </div>
+      {/* 🔴 KART BİTİŞ */}
+
+
+      {/* --- ETKİNLİK EKLEME FORMU --- */}
       {newEventLoc && (
         <div style={{
-          position: 'absolute', bottom: '30px', left: '20px', zIndex: 1000,
-          backgroundColor: 'white', padding: '20px', borderRadius: '10px',
-          boxShadow: '0 0 20px rgba(0,0,0,0.4)', width: '300px'
+          position: 'absolute', bottom: '40px', left: '20px', zIndex: 1000,
+          backgroundColor: 'white', padding: '25px', borderRadius: '15px', width: '320px',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.3)', border:'1px solid #eee'
         }}>
-          <h3 style={{marginTop:0, color: '#1565c0'}}>📍 Yeni Etkinlik</h3>
-          <form onSubmit={handleSubmit} style={{display:'flex', flexDirection:'column', gap:'10px'}}>
-            <input 
-              placeholder="Başlık" required
-              onChange={(e)=>setFormData({...formData, title: e.target.value})}
-              style={{padding:'8px', border:'1px solid #ccc', borderRadius:'5px'}}
-            />
-            <textarea 
-              placeholder="Açıklama..." required
-              onChange={(e)=>setFormData({...formData, description: e.target.value})}
-              style={{padding:'8px', border:'1px solid #ccc', borderRadius:'5px'}}
-            />
-            <select 
-              onChange={(e)=>setFormData({...formData, type: e.target.value})}
-              style={{padding:'8px', border:'1px solid #ccc', borderRadius:'5px'}}
-            >
-              <option value="study">📚 Ders Çalışma</option>
-              <option value="coffee">☕ Kahve Molası</option>
-              <option value="Eating">🌯 Yemek</option>
-              <option value="concert">🎵 Konser</option>
-              <option value="theater">🎭 Tiyatro</option>
-              <option value="other">🚩 Diğer</option>
+          <h3 style={{marginTop:0, color: '#1976d2', textAlign:'center'}}>📍 Etkinlik Oluştur</h3>
+          <form onSubmit={handleSubmit} style={{display:'flex', flexDirection:'column', gap:'12px'}}>
+            <input placeholder="Etkinlik Başlığı" required 
+              onChange={(e)=>setFormData({...formData, title: e.target.value})} 
+              style={{padding:'10px', border:'1px solid #ddd', borderRadius:'8px'}} />
+            
+            <textarea placeholder="Detaylar..." required rows="2"
+              onChange={(e)=>setFormData({...formData, description: e.target.value})} 
+              style={{padding:'10px', border:'1px solid #ddd', borderRadius:'8px', resize:'none'}} />
+            
+            <select onChange={(e)=>setFormData({...formData, type: e.target.value})}
+              style={{padding:'10px', border:'1px solid #ddd', borderRadius:'8px', backgroundColor:'white'}}>
+               <option value="study">📚 Ders Çalışma</option>
+               <option value="coffee">☕ Çay/Kahve Molası</option>
+               <option value="eat">🌯 Yemek</option>
+               <option value="concert">🎵 Bahar Şenliği</option>
+               <option value="theater">🎭 Tiyatro</option>
+               <option value="cinema">🎬 Sinema</option>
             </select>
-            <input 
-              type="datetime-local" required
-              onChange={(e)=>setFormData({...formData, date: e.target.value})}
-              style={{padding:'8px', border:'1px solid #ccc', borderRadius:'5px'}}
-            />
+            
+            <input type="datetime-local" required 
+              onChange={(e)=>setFormData({...formData, date: e.target.value})} 
+              style={{padding:'10px', border:'1px solid #ddd', borderRadius:'8px'}} />
+
             <div style={{display:'flex', gap:'10px'}}>
-              <button type="submit" style={{flex:1, background:'#2e7d32', color:'white', border:'none', padding:'10px', borderRadius:'5px', cursor:'pointer'}}>Kaydet</button>
-              <button type="button" onClick={()=>setNewEventLoc(null)} style={{flex:1, background:'#c62828', color:'white', border:'none', padding:'10px', borderRadius:'5px', cursor:'pointer'}}>İptal</button>
+              <button type="submit" style={{flex:1, background:'#4caf50', color:'white', border:'none', padding:'10px', borderRadius:'8px', cursor:'pointer'}}>Kaydet</button>
+              <button type="button" onClick={()=>setNewEventLoc(null)} style={{flex:1, background:'#f44336', color:'white', border:'none', padding:'10px', borderRadius:'8px', cursor:'pointer'}}>Vazgeç</button>
             </div>
           </form>
         </div>
       )}
 
-      {/* HARİTA */}
-      <MapContainer center={[39.9334, 32.8597]} zoom={11} style={{ height: "100%", width: "100%" }}>
-        <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      {/* --- HARİTA --- */}
+      <MapContainer center={[39.9208, 32.8541]} zoom={12} style={{ height: "100%", width: "100%" }}>
+        <FlyToUniversity university={currentUser.university} />
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
         <AddEventClick />
+
         {events.map((event) => (
-          <Marker key={event._id} position={[event.location.coordinates[1], event.location.coordinates[0]]}>
+          <Marker 
+            key={event._id} 
+            position={[event.location.coordinates[1], event.location.coordinates[0]]}
+            icon={getMarkerIconForEvent(event)}
+          >
             <Popup>
-              <div style={{ textAlign: 'center' }}>
-                <h4 style={{ color: '#d32f2f', margin: 0 }}>{event.title}</h4>
-                <small>{event.type}</small>
-                <p>{event.description}</p>
+              <div style={{ textAlign: 'center', minWidth: '220px' }}>
+                <h4 style={{ color: '#333', margin: '0 0 5px 0' }}>{event.title}</h4>
+                <div style={{ 
+                    backgroundColor: '#f5f5f5', padding:'6px', borderRadius:'6px', 
+                    fontSize:'12px', fontWeight:'bold', marginBottom:'10px', color:'#444', border:'1px solid #ddd'
+                }}>
+                    {translateType(event.type)}
+                </div>
+                {(() => {
+                   const urlRegex = /(https?:\/\/[^\s]+)/g;
+                   const links = event.description.match(urlRegex);
+                   const cleanDesc = event.description.replace(urlRegex, '').trim();
+                   const targetLink = links ? links[0] : null;
+                   return (
+                     <>
+                       {cleanDesc && <p style={{fontSize:'13px', margin:'5px 0', color:'#555'}}>{cleanDesc}</p>}
+                       {targetLink && (
+                         <a href={targetLink} target="_blank" rel="noopener noreferrer" style={{
+                           display: 'block', margin: '10px auto 0 auto', padding: '10px',
+                           backgroundColor: '#2196f3', color: 'white', textDecoration: 'none',
+                           borderRadius: '6px', fontWeight: 'bold', fontSize: '13px'
+                         }}>
+                           🎟️ BİLET / DETAY ➤
+                         </a>
+                       )}
+                     </>
+                   );
+                })()}
                 {event.universityScope !== 'All' && (
-                  <span style={{ background: '#e3f2fd', padding: '2px 5px', borderRadius: '4px', fontSize: '10px', color: '#0d47a1' }}>
-                    Sadece {uniNames[event.universityScope] || event.universityScope}
-                  </span>
+                   <div style={{marginTop:'8px', fontSize:'11px', color:'#d32f2f', fontWeight:'bold'}}>
+                     📍 Sadece {uniNames[event.universityScope]}
+                   </div>
                 )}
               </div>
             </Popup>
