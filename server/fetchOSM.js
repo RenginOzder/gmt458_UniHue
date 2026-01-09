@@ -47,7 +47,7 @@ const QUERY = `
     out body;
 `;
 
-const BLACKLIST = ["Market", "Tarım", "Kredi", "Bakkal", "Büfe", "Store", "Shop", "Opera"];
+const BLACKLIST = ["Market", "Tarım", "Kredi", "Bakkal", "Büfe", "Store", "Shop"];
 
 const fetchAndSeed = async () => {
     try {

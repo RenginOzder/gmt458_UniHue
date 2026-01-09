@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import axios from 'axios';
 
-// --- İKON OLUŞTURUCU (SVG - Temiz Görünüm) ---
+// --- İKON OLUŞTURUCU ---
 const createColorIcon = (color, size = 40) => {
   const svgIcon = `
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}" fill="${color}" stroke="black" stroke-width="1" stroke-linejoin="round">
@@ -22,24 +22,22 @@ const createColorIcon = (color, size = 40) => {
 
 // --- RENK VE İKON AYARLARI ---
 const ICONS = {
-  cinema: createColorIcon('#9c27b0'),    // 🟣 Sinema: MOR
-  opera: createColorIcon('#e91e63'),     // 🌸 Opera: PEMBE
-  cso: createColorIcon('#1a237e'),       // 🔵 CSO: KOYU MAVİ
-  theater: createColorIcon('#ff9800'),   // 🟠 Tiyatro: TURUNCU
-  concert: createColorIcon('#f44336'),   // 🎵 Bahar Şenliği: KIRMIZI
-  eat: createColorIcon('#4caf50'),       // 🌯 Yemek: YEŞİL
-  coffee: createColorIcon('#795548'),    // ☕ Kahve: KAHVERENGİ
-  study: createColorIcon('#607d8b'),     // 📚 Ders: GRİ MAVİ
-  student: createColorIcon('#d32f2f')    // ❤️ Varsayılan: KIRMIZI
+  cinema: createColorIcon('#9c27b0'),    // 🟣 Sinema
+  opera: createColorIcon('#e91e63'),     // 🌸 Opera
+  cso: createColorIcon('#1a237e'),       // 🔵 CSO
+  theater: createColorIcon('#ff9800'),   // 🟠 Tiyatro
+  concert: createColorIcon('#f44336'),   // 🎵 Bahar Şenliği
+  eat: createColorIcon('#4caf50'),       // 🌯 Yemek
+  coffee: createColorIcon('#795548'),    // ☕ Kahve
+  study: createColorIcon('#607d8b'),     // 📚 Ders
+  student: createColorIcon('#d32f2f')    // ❤️ Varsayılan
 };
 
-// Üniversite İsimleri
 const uniNames = {
   hacettepe: "Hacettepe Üniversitesi", odtu: "ODTÜ", ankara: "Ankara Üniversitesi",
   gazi: "Gazi Üniversitesi", atilim: "Atılım", bilkent: "Bilkent", other: "Diğer", null: "Misafir"
 };
 
-// Üniversite Koordinatları (Zoom İçin)
 const UNI_COORDS = {
   odtu: [39.8914, 32.7847],
   hacettepe: [39.8656, 32.7344],
@@ -49,7 +47,7 @@ const UNI_COORDS = {
   default: [39.9208, 32.8541] 
 };
 
-// --- OTOMATİK ZOOM BİLEŞENİ ---
+// --- OTOMATİK ZOOM ---
 function FlyToUniversity({ university }) {
   const map = useMap();
   useEffect(() => {
@@ -78,7 +76,7 @@ const UniHueMap = ({ currentUser }) => {
 
   useEffect(() => { getEvents(); }, [getEvents]);
 
-  // Haritaya Tıklayınca Ekleme Modunu Aç
+  // Haritaya Tıklama
   function AddEventClick() {
     useMapEvents({
       click(e) {
@@ -123,17 +121,13 @@ const UniHueMap = ({ currentUser }) => {
     return '📅 Etkinlik';
   };
 
-  // --- 🔥 İŞTE BURASI: ESKİ GÜZEL KULLANICI KARTI ---
-  // Öğrenciyse 🎓, Misafirse 👤 ikonu seçimi
   const userIcon = currentUser.role === 'basic' ? "👤" : "🎓";
-
-  // Butona basınca haritada tıklamayı hatırlatan fonksiyon
   const handleAddBtnClick = () => { alert("📍 Harita üzerinde eklemek istediğiniz yere tıklayın."); };
 
   return (
     <div style={{ position: 'relative', height: '100vh', width: '100%' }}>
       
-      {/* 🟢 KULLANICI PROFİL KARTI (ESKİ HALİNE DÖNDÜ) */}
+      {/* 🟢 KULLANICI PROFİL KARTI */}
       <div style={{
         position: 'absolute', top: '20px', right: '20px', zIndex: 1000,
         backgroundColor: 'rgba(255, 255, 255, 0.95)', padding: '15px',
@@ -148,28 +142,29 @@ const UniHueMap = ({ currentUser }) => {
             {userIcon} <b>{currentUser.university ? uniNames[currentUser.university] : "Misafir Kullanıcı"}</b>
             </p>
         </div>
-
-        {/* --- AKTİF ETKİNLİK SAYISI GERİ GELDİ --- */}
+        
+        {/* AKTİF ETKİNLİK SAYISI */}
         <div style={{ fontSize: '12px', color: '#888' }}>
-          Aktif Etkinlik: <b>{events.length}</b>
+          Görünen Etkinlik: <b>{
+            events.filter(event => {
+                const permanentTypes = ['opera', 'cso', 'cinema', 'theater'];
+                if (permanentTypes.includes(event.type)) return true;
+                return new Date(event.date) >= new Date();
+            }).length
+          }</b>
         </div>
 
-        {/* --- SADECE ÖĞRENCİDE ÇIKAN BUTON --- */}
         {currentUser.role !== 'basic' && (
             <button onClick={handleAddBtnClick} style={{
                 width: '100%', padding: '8px', backgroundColor: '#1976d2', color: 'white',
                 border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
             }}>➕ Etkinlik Ekle</button>
         )}
-
-        {/* --- ÇIKIŞ BUTONU --- */}
         <button onClick={() => window.location.reload()} style={{
             width: '100%', padding: '8px', backgroundColor: '#c62828', color: 'white',
             border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
         }}>Çıkış Yap 🚪</button>
       </div>
-      {/* 🔴 KART BİTİŞ */}
-
 
       {/* --- ETKİNLİK EKLEME FORMU --- */}
       {newEventLoc && (
@@ -196,6 +191,8 @@ const UniHueMap = ({ currentUser }) => {
                <option value="concert">🎵 Bahar Şenliği</option>
                <option value="theater">🎭 Tiyatro</option>
                <option value="cinema">🎬 Sinema</option>
+               <option value="opera">💃 Opera ve Bale</option>
+               <option value="cso">🎻 CSO Konser</option>
             </select>
             
             <input type="datetime-local" required 
@@ -219,49 +216,66 @@ const UniHueMap = ({ currentUser }) => {
         />
         <AddEventClick />
 
-        {events.map((event) => (
-          <Marker 
-            key={event._id} 
-            position={[event.location.coordinates[1], event.location.coordinates[0]]}
-            icon={getMarkerIconForEvent(event)}
-          >
-            <Popup>
-              <div style={{ textAlign: 'center', minWidth: '220px' }}>
-                <h4 style={{ color: '#333', margin: '0 0 5px 0' }}>{event.title}</h4>
-                <div style={{ 
-                    backgroundColor: '#f5f5f5', padding:'6px', borderRadius:'6px', 
-                    fontSize:'12px', fontWeight:'bold', marginBottom:'10px', color:'#444', border:'1px solid #ddd'
-                }}>
-                    {translateType(event.type)}
+        {/* 🔥 AKILLI FİLTRE BURADA: 
+            - KALICI BİNALAR (Opera, CSO, Sinema, Tiyatro) -> Hep Göster
+            - ÜNİVERSİTE ETKİNLİKLERİ -> Tarihi Geçmemişse Göster
+        */}
+        {events
+          .filter(event => {
+              // 1. Kalıcı Mekanlar Listesi
+              const permanentTypes = ['opera', 'cso', 'cinema', 'theater'];
+              
+              // Eğer bu tiplerden biriyse, tarihi ne olursa olsun göster
+              if (permanentTypes.includes(event.type)) {
+                  return true; 
+              }
+              
+              // 2. Diğerleri (Öğrenci etkinlikleri) için tarih kontrolü yap
+              return new Date(event.date) >= new Date();
+          }) 
+          .map((event) => (
+            <Marker 
+              key={event._id} 
+              position={[event.location.coordinates[1], event.location.coordinates[0]]}
+              icon={getMarkerIconForEvent(event)}
+            >
+              <Popup>
+                <div style={{ textAlign: 'center', minWidth: '220px' }}>
+                  <h4 style={{ color: 'rgba(85, 83, 83, 1)', margin: '0 0 5px 0' }}>{event.title}</h4>
+                  <div style={{ 
+                      backgroundColor: '#f5f5f5', padding:'6px', borderRadius:'6px', 
+                      fontSize:'12px', fontWeight:'bold', marginBottom:'10px', color:'rgba(85, 83, 83, 1)', border:'1px solid #ddd'
+                  }}>
+                      {translateType(event.type)}
+                  </div>
+                  {(() => {
+                    const urlRegex = /(https?:\/\/[^\s]+)/g;
+                    const links = event.description.match(urlRegex);
+                    const cleanDesc = event.description.replace(urlRegex, '').trim();
+                    const targetLink = links ? links[0] : null;
+                    return (
+                      <>
+                        {cleanDesc && <p style={{fontSize:'13px', margin:'5px 0', color:'#555'}}>{cleanDesc}</p>}
+                        {targetLink && (
+                          <a href={targetLink} target="_blank" rel="noopener noreferrer" style={{
+                            display: 'block', margin: '10px auto 0 auto', padding: '10px',
+                            backgroundColor: '#2196f3', color: 'white', textDecoration: 'none',
+                            borderRadius: '6px', fontWeight: 'bold', fontSize: '13px'
+                          }}>
+                            🎟️ BİLET / DETAY ➤
+                          </a>
+                        )}
+                      </>
+                    );
+                  })()}
+                  {event.universityScope !== 'All' && (
+                    <div style={{marginTop:'8px', fontSize:'11px', color:'#d32f2f', fontWeight:'bold'}}>
+                      📍 Sadece {uniNames[event.universityScope]}
+                    </div>
+                  )}
                 </div>
-                {(() => {
-                   const urlRegex = /(https?:\/\/[^\s]+)/g;
-                   const links = event.description.match(urlRegex);
-                   const cleanDesc = event.description.replace(urlRegex, '').trim();
-                   const targetLink = links ? links[0] : null;
-                   return (
-                     <>
-                       {cleanDesc && <p style={{fontSize:'13px', margin:'5px 0', color:'#555'}}>{cleanDesc}</p>}
-                       {targetLink && (
-                         <a href={targetLink} target="_blank" rel="noopener noreferrer" style={{
-                           display: 'block', margin: '10px auto 0 auto', padding: '10px',
-                           backgroundColor: '#2196f3', color: 'white', textDecoration: 'none',
-                           borderRadius: '6px', fontWeight: 'bold', fontSize: '13px'
-                         }}>
-                           🎟️ BİLET / DETAY ➤
-                         </a>
-                       )}
-                     </>
-                   );
-                })()}
-                {event.universityScope !== 'All' && (
-                   <div style={{marginTop:'8px', fontSize:'11px', color:'#d32f2f', fontWeight:'bold'}}>
-                     📍 Sadece {uniNames[event.universityScope]}
-                   </div>
-                )}
-              </div>
-            </Popup>
-          </Marker>
+              </Popup>
+            </Marker>
         ))}
       </MapContainer>
     </div>
