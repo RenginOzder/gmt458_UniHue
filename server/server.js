@@ -1,38 +1,34 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-require('dotenv').config();
-const authRoutes = require('./routes/auth');
-const eventRoute = require('./routes/events');
+const express = require("express");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const cors = require("cors"); // Frontend ile konuşması için gerekli
 
+// 🔥 ROTALARI ÇAĞIRIYORUZ (Resimdeki dosya isimlerine göre)
+const authRoute = require("./routes/auth"); 
+const eventRoute = require("./routes/events");
 
-// Uygulamayı Başlat
 const app = express();
+dotenv.config();
 
-// Ara Yazılımlar (Middlewares)
-app.use(express.json()); // Gelen JSON verilerini okumak için
-app.use(cors()); // Frontend ile iletişim için
+// Middleware (Ara yazılımlar)
+app.use(express.json());
+app.use(cors()); // React'tan gelen isteklere izin ver
 
-app.use('/api/auth', authRoutes);
-app.use('/api/events', eventRoute);
+// 🔌 VERİTABANI BAĞLANTISI
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB Connected!"))
+  .catch((err) => console.log(err));
 
+// 🛣️ ROTA YÖNLENDİRMELERİ (ÇOK ÖNEMLİ)
+// Giriş ve Kayıt için:
+app.use("/api/auth", authRoute);
 
-// Test Rotası (API çalışıyor mu?)
-app.get('/', (req, res) => {
-    res.send('UniHue API: Sunucu ve MongoDB Aktif! 🚀');
-});
+// Harita Pinleri için:
+app.use("/api/events", eventRoute);
 
-// MongoDB Bağlantısı (NoSQL Maddesi - %25)
+// Sunucuyu Başlat
 const PORT = process.env.PORT || 5000;
-
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => {
-        console.log('✅ MongoDB Bağlantısı Başarılı!');
-        // Sunucuyu Dinlemeye Başla
-        app.listen(PORT, () => {
-            console.log(`📡 Sunucu ${PORT} portunda çalışıyor...`);
-        });
-    })
-    .catch((err) => {
-        console.error('❌ MongoDB Bağlantı Hatası:', err.message);
-    });
+app.listen(PORT, () => {
+  console.log(`📡 MongoDB Bağlantısı Kuruldu ${PORT}!`);
+});

@@ -60,7 +60,8 @@ function FlyToUniversity({ university }) {
   return null;
 }
 
-const UniHueMap = ({ currentUser }) => {
+// DÜZELTME: onLogout prop'unu buraya ekledim
+const UniHueMap = ({ currentUser, onLogout }) => {
   const [events, setEvents] = useState([]);
   const [newEventLoc, setNewEventLoc] = useState(null);
   const [formData, setFormData] = useState({ title: "", description: "", type: "study", date: "" });
@@ -122,7 +123,10 @@ const UniHueMap = ({ currentUser }) => {
   };
 
   const userIcon = currentUser.role === 'basic' ? "👤" : "🎓";
-  const handleAddBtnClick = () => { alert("📍 Harita üzerinde eklemek istediğiniz yere tıklayın."); };
+  const handleAddBtnClick = (e) => { 
+      e.stopPropagation(); // Butona basınca haritaya basmayı engelle
+      alert("📍 Harita üzerinde eklemek istediğiniz yere tıklayın."); 
+  };
 
   return (
     <div style={{ position: 'relative', height: '100vh', width: '100%' }}>
@@ -133,7 +137,11 @@ const UniHueMap = ({ currentUser }) => {
         backgroundColor: 'rgba(255, 255, 255, 0.95)', padding: '15px',
         borderRadius: '10px', boxShadow: '0 4px 15px rgba(0,0,0,0.3)', minWidth: '250px',
         display: 'flex', flexDirection: 'column', gap: '10px'
-      }}>
+      }}
+      // Karta tıklayınca da haritaya tıklamayı engellemek için:
+      onClick={(e) => e.stopPropagation()} 
+      onDoubleClick={(e) => e.stopPropagation()}
+      >
         <div>
             <h3 style={{ margin: '0 0 5px 0', color: '#1a237e' }}>
             👋 <span style={{ textTransform: 'capitalize' }}>{currentUser.username}</span>
@@ -160,19 +168,33 @@ const UniHueMap = ({ currentUser }) => {
                 border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
             }}>➕ Etkinlik Ekle</button>
         )}
-        <button onClick={() => window.location.reload()} style={{
-            width: '100%', padding: '8px', backgroundColor: '#c62828', color: 'white',
-            border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
-        }}>Çıkış Yap 🚪</button>
+        
+        {/* DÜZELTİLEN ÇIKIŞ BUTONU */}
+        <button 
+            onClick={(e) => {
+                e.stopPropagation(); // Haritaya tıklamayı engelle (ZOOM SORUNUNU ÇÖZER)
+                if(onLogout) onLogout(); // App.js'den gelen çıkışı yap
+                else window.location.reload(); 
+            }} 
+            style={{
+                width: '100%', padding: '8px', backgroundColor: '#c62828', color: 'white',
+                border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
+            }}
+        >
+            Çıkış Yap 🚪
+        </button>
       </div>
 
       {/* --- ETKİNLİK EKLEME FORMU --- */}
       {newEventLoc && (
-        <div style={{
-          position: 'absolute', bottom: '40px', left: '20px', zIndex: 1000,
-          backgroundColor: 'white', padding: '25px', borderRadius: '15px', width: '320px',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.3)', border:'1px solid #eee'
-        }}>
+        <div 
+            style={{
+            position: 'absolute', bottom: '40px', left: '20px', zIndex: 1000,
+            backgroundColor: 'white', padding: '25px', borderRadius: '15px', width: '320px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.3)', border:'1px solid #eee'
+            }}
+            onClick={(e) => e.stopPropagation()} // Form tıklaması haritaya geçmesin
+        >
           <h3 style={{marginTop:0, color: '#1976d2', textAlign:'center'}}>📍 Etkinlik Oluştur</h3>
           <form onSubmit={handleSubmit} style={{display:'flex', flexDirection:'column', gap:'12px'}}>
             <input placeholder="Etkinlik Başlığı" required 

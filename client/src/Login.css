@@ -1,0 +1,220 @@
+/* client/src/Login.css */
+
+/* Tüm Sayfa Yapısı */
+.login-page {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    justify-content: space-between; 
+    align-items: center;
+    padding: 0 10%;
+}
+
+/* --- ARKA PLAN --- */
+.video-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+}
+
+.login-page::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* KOYU MAVİ -> KOYU PEMBE GEÇİŞİ */
+    background: linear-gradient(135deg, rgba(10, 25, 47, 0.9) 0%, rgba(30, 20, 60, 0.85) 50%, rgba(136, 14, 79, 0.8) 100%);
+    z-index: -1;
+    backdrop-filter: blur(4px);
+}
+
+/* --- SOL TARAF (GÜNCELLENDİ: Sanat Vurgusu) --- */
+.intro-section {
+    flex: 1;
+    max-width: 650px;
+    z-index: 1;
+    padding-right: 50px;
+}
+
+.intro-content h1 {
+    font-size: 4.5rem;
+    margin-bottom: 15px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -2px;
+    background: linear-gradient(to right, #4fc3f7, #ff4081);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0px 0px 15px rgba(255, 64, 129, 0.4));
+}
+
+.main-slogan {
+    font-size: 1.4rem;
+    color: #e0e0e0;
+    margin-bottom: 40px;
+    font-weight: 300;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* YENİ LİSTE TASARIMI */
+.feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05); /* Çok hafif kutu */
+    padding: 15px 20px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(5px);
+    transition: transform 0.3s;
+}
+
+.feature-item:hover {
+    transform: translateX(10px); /* Üzerine gelince sağa kayar */
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(79, 195, 247, 0.3);
+}
+
+.feature-item .icon {
+    font-size: 2.5rem;
+    margin-right: 20px;
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+}
+
+.feature-item h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #fff;
+    font-weight: 700;
+}
+
+.feature-item p {
+    margin: 3px 0 0 0;
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+.highlight {
+    color: #ff4081;
+}
+
+/* --- SAĞ TARAF (FORM) --- */
+.form-section {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    z-index: 1;
+}
+
+.login-card {
+    background: rgba(18, 18, 28, 0.65); 
+    padding: 40px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(20px);
+    width: 380px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.login-card h2 {
+    color: white;
+    margin-bottom: 25px;
+    font-weight: 600;
+    font-size: 1.8rem;
+}
+
+.input-group {
+    margin-bottom: 18px;
+}
+
+.input-group input, .input-group select {
+    width: 100%;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    box-sizing: border-box;
+    font-size: 14px;
+    color: white;
+    outline: none;
+    transition: 0.3s;
+}
+
+.input-group input::placeholder { color: rgba(255, 255, 255, 0.5); }
+
+.input-group select { color: #333; }
+.input-group select option { background: #2c3e50; color: white; }
+
+.input-group input:focus, .input-group select:focus {
+    border-color: #ff4081;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 15px rgba(255, 64, 129, 0.2);
+}
+
+.action-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(90deg, #1a237e 0%, #ad1457 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(173, 20, 87, 0.4);
+}
+
+.action-btn:hover {
+    filter: brightness(1.2);
+    transform: scale(1.02);
+}
+
+.toggle-text {
+    margin-top: 20px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.toggle-text:hover { color: white; }
+.toggle-text b { color: #ff80ab; }
+
+@media (max-width: 900px) {
+    .login-page {
+        flex-direction: column;
+        justify-content: center;
+        padding: 20px;
+        text-align: center;
+        overflow-y: auto; /* Mobilde taşarsa kaydır */
+    }
+    .intro-section {
+        margin-bottom: 40px;
+        padding-right: 0;
+    }
+    .form-section {
+        justify-content: center;
+        width: 100%;
+    }
+    .intro-content h1 {
+        font-size: 3rem;
+    }
+}
