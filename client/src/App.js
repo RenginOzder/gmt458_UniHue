@@ -61,13 +61,13 @@ function App() {
     e.preventDefault();
     try {
       if (isRegister) {
-        await axios.post("https://gmt458-uni-hue-uf6g.vercel.app/api/auth/register", {
+        await axios.post("https://gmt458-uni-hue.vercel.app/api/auth/register", {
           username, email, password, university, role: "student"
         });
         alert("Kayıt Başarılı! Giriş yapabilirsiniz.");
         setIsRegister(false);
       } else {
-        const res = await axios.post("https://gmt458-uni-hue-uf6g.vercel.app/api/auth/login", {
+        const res = await axios.post("https://gmt458-uni-hue.vercel.app/api/auth/login", {
           username, password
         });
         setCurrentUser(res.data);
