@@ -67,7 +67,7 @@ const UniHueMap = ({ currentUser, onLogout }) => {
 
   const getEvents = useCallback(async () => {
     try {
-      const res = await axios.get("https://gmt458-uni-hue-6pjz.vercel.app/api/events", {
+      const res = await axios.get("https://gmt458-uni-hue-uf6g.vercel.app/api/events", {
         params: { university: currentUser?.university, role: currentUser?.role }
       });
       setEvents(res.data);
@@ -96,7 +96,7 @@ const UniHueMap = ({ currentUser, onLogout }) => {
       creator: currentUser._id
     };
     try {
-      await axios.post("https://gmt458-uni-hue-6pjz.vercel.app/api/events", newEvent);
+      await axios.post("https://gmt458-uni-hue-uf6g.vercel.app/api/events", newEvent);
       setNewEventLoc(null);
       setFormData({ title: "", description: "", type: "study", date: "" });
       getEvents();
