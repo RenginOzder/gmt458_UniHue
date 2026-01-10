@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 're
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import axios from 'axios';
+const API_URL = process.env.REACT_APP_API_URL;
 
 // --- İKON OLUŞTURUCU ---
 const createColorIcon = (color, size = 40) => {
@@ -60,7 +61,6 @@ function FlyToUniversity({ university }) {
   return null;
 }
 
-// DÜZELTME: onLogout prop'unu buraya ekledim
 const UniHueMap = ({ currentUser, onLogout }) => {
   const [events, setEvents] = useState([]);
   const [newEventLoc, setNewEventLoc] = useState(null);
@@ -68,7 +68,7 @@ const UniHueMap = ({ currentUser, onLogout }) => {
 
   const getEvents = useCallback(async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/events", {
+      const res = await axios.get("${API_URL}/api/events", {
         params: { university: currentUser?.university, role: currentUser?.role }
       });
       setEvents(res.data);
@@ -97,7 +97,7 @@ const UniHueMap = ({ currentUser, onLogout }) => {
       creator: currentUser._id
     };
     try {
-      await axios.post("http://localhost:5000/api/events", newEvent);
+      await axios.post("${API_URL}/api/events", newEvent);
       setNewEventLoc(null);
       setFormData({ title: "", description: "", type: "study", date: "" });
       getEvents();

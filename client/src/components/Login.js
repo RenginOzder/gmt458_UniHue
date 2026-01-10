@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import "./Login.css"; // Birazdan oluşturacağız
+const API_URL = process.env.REACT_APP_API_URL;
 
 export default function Login({ setMyStorage, setShowRegister }) {
   const [email, setEmail] = useState("");
@@ -11,7 +12,7 @@ export default function Login({ setMyStorage, setShowRegister }) {
     e.preventDefault();
     try {
       // Backend'e giriş isteği atıyoruz
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      const res = await axios.post("${API_URL}/api/users/login", {
         email,
         password,
       });

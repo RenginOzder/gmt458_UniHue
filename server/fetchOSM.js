@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Event = require('./models/Event');
 const User = require('./models/User');
 const dotenv = require('dotenv');
+const API_URL = process.env.REACT_APP_API_URL;
 
 dotenv.config();
 

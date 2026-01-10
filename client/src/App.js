@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import UniHueMap from './components/Map';
 import './Login.css';
+const API_URL = process.env.REACT_APP_API_URL;
 
 // 🎵 Müzik ve Video dosyalarını import ediyoruz
 import backgroundMusic from './comethru.mp4'; 
@@ -60,13 +61,13 @@ function App() {
     e.preventDefault();
     try {
       if (isRegister) {
-        await axios.post("http://localhost:5000/api/auth/register", {
+        await axios.post("${API_URL}/api/auth/register", {
           username, email, password, university, role: "student"
         });
         alert("Kayıt Başarılı! Giriş yapabilirsiniz.");
         setIsRegister(false);
       } else {
-        const res = await axios.post("http://localhost:5000/api/auth/login", {
+        const res = await axios.post("${API_URL}/api/auth/login", {
           username, password
         });
         setCurrentUser(res.data);
