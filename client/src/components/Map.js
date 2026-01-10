@@ -68,7 +68,7 @@ const UniHueMap = ({ currentUser, onLogout }) => {
 
   const getEvents = useCallback(async () => {
     try {
-      const res = await axios.get("${API_URL}/api/events", {
+      const res = await axios.get(`${API_URL}/api/events`, {
         params: { university: currentUser?.university, role: currentUser?.role }
       });
       setEvents(res.data);
@@ -97,7 +97,7 @@ const UniHueMap = ({ currentUser, onLogout }) => {
       creator: currentUser._id
     };
     try {
-      await axios.post("${API_URL}/api/events", newEvent);
+      await axios.post(`${API_URL}/api/events`, newEvent);
       setNewEventLoc(null);
       setFormData({ title: "", description: "", type: "study", date: "" });
       getEvents();

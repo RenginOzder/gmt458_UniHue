@@ -12,7 +12,7 @@ export default function Login({ setMyStorage, setShowRegister }) {
     e.preventDefault();
     try {
       // Backend'e giriş isteği atıyoruz
-      const res = await axios.post("${API_URL}/api/users/login", {
+      const res = await axios.post(`${API_URL}/api/users/login`, {
         email,
         password,
       });

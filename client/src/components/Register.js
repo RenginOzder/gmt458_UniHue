@@ -13,7 +13,7 @@ export default function Register({ setShowRegister }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("${API_URL}/api/auth/register", {
+      await axios.post(`${API_URL}/api/auth/register`, {
         username,
         email,
         password,
