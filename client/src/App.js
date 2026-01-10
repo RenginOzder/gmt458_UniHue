@@ -45,13 +45,13 @@ function App() {
     }
   }, []);
 
-  // --- 🔥 ÇIKIŞ YAPMA FONKSİYONU (GARANTİ) ---
+  // --- ÇIKIŞ YAPMA FONKSİYONU ---
   const handleLogout = () => {
     // 1. Hafızayı temizle
     localStorage.removeItem("user");
     // 2. State'i boşalt
     setCurrentUser(null);
-    // 3. Sayfayı zorla yenile (En temiz yöntem)
+    // 3. Sayfayı zorla yenile 
     window.location.href = "/";
   };
 
@@ -88,7 +88,6 @@ function App() {
       <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden" }}>
         
         {/* Harita Bileşeni */}
-        {/* DÜZELTME: Çıkış fonksiyonunu (handleLogout) haritaya gönderdik */}
         <UniHueMap currentUser={currentUser} onLogout={handleLogout} />
         
       </div>
@@ -105,7 +104,7 @@ function App() {
       <div className="intro-section">
         <div className="intro-content">
           <h1>UniHue <span className="highlight">Sanat & Kampüs</span></h1>
-          <p className="main-slogan">Ankara'nın ritmi burada atıyor.</p>
+          <p className="main-slogan">Ankara'nın ritmi burada atıyor. Tiyator, Sinema, Üniversitenize özel etkinlikler ve daha fazlası...</p>
           <div className="feature-list">
               <div className="feature-item"><span className="icon">🎭</span><div><h3>Devlet Tiyatroları</h3><p>Opera ve Bale temsilleri.</p></div></div>
               <div className="feature-item"><span className="icon">🎻</span><div><h3>CSO Ada</h3><p>Senfoni Orkestrası.</p></div></div>
@@ -154,6 +153,21 @@ function App() {
             )}
           </form>
         </div>
+      </div>
+<div style={{
+        position: 'absolute',
+        bottom: '0',
+        width: '100%',
+        textAlign: 'center',
+        padding: '10px 0',
+        zIndex: 999,
+        fontSize: '13px',
+        fontWeight: '600', // Yazıyı biraz daha kalın ve belirgin yaptık
+        color: '#ff69b4', // Canlı bir pembe renk
+        // Arka planı kaldırdık. Yazının harita üzerinde daha net okunması için gölge ekledik:
+        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.6)' 
+      }}>
+        © 2026 Rengin Özder — Designed with curiosity and care 🌍
       </div>
     </div>
   );

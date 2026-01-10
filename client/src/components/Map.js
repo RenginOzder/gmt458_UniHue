@@ -169,7 +169,7 @@ const UniHueMap = ({ currentUser, onLogout }) => {
             }}>➕ Etkinlik Ekle</button>
         )}
         
-        {/* DÜZELTİLEN ÇIKIŞ BUTONU */}
+        {/* ÇIKIŞ BUTONU */}
         <button 
             onClick={(e) => {
                 e.stopPropagation(); // Haritaya tıklamayı engelle (ZOOM SORUNUNU ÇÖZER)
@@ -183,6 +183,29 @@ const UniHueMap = ({ currentUser, onLogout }) => {
         >
             Çıkış Yap 🚪
         </button>
+        {/* Kategori Renkleri*/}
+        <div style={{ marginTop: '10px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
+            <h5 style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#555' }}>🏛️🎀 Mekan Rehberi</h5>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '12px', color: '#444' }}>
+                <li style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
+                    <span style={{ width: '12px', height: '12px', backgroundColor: '#9c27b0', borderRadius: '50%', marginRight: '8px' }}></span>
+                    Sinema
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
+                    <span style={{ width: '12px', height: '12px', backgroundColor: '#ff9800', borderRadius: '50%', marginRight: '8px' }}></span>
+                    Tiyatro
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
+                    <span style={{ width: '12px', height: '12px', backgroundColor: '#e91e63', borderRadius: '50%', marginRight: '8px' }}></span>
+                    Bale (Opera)
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
+                    <span style={{ width: '12px', height: '12px', backgroundColor: '#1a237e', borderRadius: '50%', marginRight: '8px' }}></span>
+                    CSO
+                </li>
+            </ul>
+        </div>
+
       </div>
 
       {/* --- ETKİNLİK EKLEME FORMU --- */}
@@ -300,6 +323,21 @@ const UniHueMap = ({ currentUser, onLogout }) => {
             </Marker>
         ))}
       </MapContainer>
+      <div style={{
+        position: 'absolute',
+        bottom: '0',
+        width: '100%',
+        textAlign: 'center',
+        padding: '8px 0',
+        zIndex: 999, // Haritanın ve diğer öğelerin üstünde kalması için
+        fontSize: '12px',
+        color: '#555',
+        backgroundColor: 'rgba(255, 255, 255, 0.7)', // Okunabilirlik için yarı saydam arka plan
+        fontFamily: 'sans-serif',
+        backdropFilter: 'blur(2px)' // Hafif buzlu cam efekti
+      }}>
+        © 2026 Rengin Özder — Designed with curiosity and care 🌍
+      </div>
     </div>
   );
 };

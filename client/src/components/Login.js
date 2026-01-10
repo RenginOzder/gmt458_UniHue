@@ -51,6 +51,21 @@ return (
             Hesabın yok mu? <b>Kayıt Ol</b>
         </div>
       </form>
+      <div style={{
+        position: 'absolute',
+        bottom: '0',
+        width: '100%',
+        textAlign: 'center',
+        padding: '8px 0',
+        zIndex: 999, // Haritanın ve diğer öğelerin üstünde kalması için
+        fontSize: '12px',
+        color: '#555',
+        backgroundColor: 'rgba(255, 255, 255, 0.7)', // Okunabilirlik için yarı saydam arka plan
+        fontFamily: 'sans-serif',
+        backdropFilter: 'blur(2px)' // Hafif buzlu cam efekti
+      }}>
+        © 2025 Rengin Özder — Designed with curiosity and care 🌍
+      </div>
     </div>
   );
 }
