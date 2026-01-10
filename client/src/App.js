@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import UniHueMap from './components/Map';
 import './Login.css';
+import backgroundMusic from './comethru.mp4'; 
 const API_URL = process.env.REACT_APP_API_URL;
 
 // 🎵 Müzik ve Video dosyalarını import ediyoruz
-import backgroundMusic from './comethru.mp4'; 
+
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
