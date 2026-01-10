@@ -3,7 +3,6 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 're
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import axios from 'axios';
-const API_URL = process.env.REACT_APP_API_URL;
 
 // --- İKON OLUŞTURUCU ---
 const createColorIcon = (color, size = 40) => {
@@ -68,7 +67,7 @@ const UniHueMap = ({ currentUser, onLogout }) => {
 
   const getEvents = useCallback(async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/events`, {
+      const res = await axios.get("https://gmt458-uni-hue-6pjz.vercel.app/api/events", {
         params: { university: currentUser?.university, role: currentUser?.role }
       });
       setEvents(res.data);
@@ -97,7 +96,7 @@ const UniHueMap = ({ currentUser, onLogout }) => {
       creator: currentUser._id
     };
     try {
-      await axios.post(`${API_URL}/api/events`, newEvent);
+      await axios.post("https://gmt458-uni-hue-6pjz.vercel.app/api/events", newEvent);
       setNewEventLoc(null);
       setFormData({ title: "", description: "", type: "study", date: "" });
       getEvents();

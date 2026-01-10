@@ -3,7 +3,6 @@ import axios from 'axios';
 import UniHueMap from './components/Map';
 import './Login.css';
 import backgroundMusic from './comethru.mp4'; 
-const API_URL = process.env.REACT_APP_API_URL;
 
 // 🎵 Müzik ve Video dosyalarını import ediyoruz
 
@@ -62,13 +61,13 @@ function App() {
     e.preventDefault();
     try {
       if (isRegister) {
-        await axios.post(`${API_URL}/api/auth/register`, {
+        await axios.post("https://gmt458-uni-hue-6pjz.vercel.app/api/auth/register", {
           username, email, password, university, role: "student"
         });
         alert("Kayıt Başarılı! Giriş yapabilirsiniz.");
         setIsRegister(false);
       } else {
-        const res = await axios.post(`${API_URL}/api/auth/login`, {
+        const res = await axios.post("https://gmt458-uni-hue-6pjz.vercel.app/api/auth/login", {
           username, password
         });
         setCurrentUser(res.data);

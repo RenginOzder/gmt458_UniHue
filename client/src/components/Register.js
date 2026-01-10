@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import "./Login.css"; // Aynı CSS dosyasını kullanıyoruz, tasarımı bozmayalım
-const API_URL = process.env.REACT_APP_API_URL;
+
 
 export default function Register({ setShowRegister }) {
   const [username, setUsername] = useState("");
@@ -13,7 +13,7 @@ export default function Register({ setShowRegister }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_URL}/api/auth/register`, {
+      await axios.post("https://gmt458-uni-hue-6pjz.vercel.app/api/auth/register", {
         username,
         email,
         password,
