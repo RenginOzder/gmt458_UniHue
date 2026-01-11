@@ -13,7 +13,7 @@ export default function Register({ setShowRegister }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("https://gmt458-uni-hue.vercel.app/api/auth/register", {
+      await axios.post("https://gmt458-uni-hue.vercel.app/api/users/register", {
         username,
         email,
         password,
