@@ -9,6 +9,8 @@ const eventRoute = require('./routes/events');
 // Uygulamayı Başlat
 const app = express();
 
+
+
 // Ara Yazılımlar (Middlewares)
 app.use(express.json()); // Gelen JSON verilerini okumak için
 app.use(cors()); // Frontend ile iletişim için
