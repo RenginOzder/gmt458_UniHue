@@ -11,7 +11,7 @@ export default function Login({ setMyStorage, setShowRegister }) {
     e.preventDefault();
     try {
       // Backend'e giriş isteği atıyoruz
-      const res = await axios.post("https://gmt458-uni-hue.vercel.app/api/users/login", {
+      const res = await axios.post("https://gmt458-uni-hue.vercel.app/api/auth/login", {
         email,
         password,
       });
